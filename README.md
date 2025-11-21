@@ -1,55 +1,55 @@
+# ARQUITECTURA ORIENTADA A SERVICIOS  
+## Curso 2025-26  
 
-# ARQUITECTURA ORIENTADA A SERVICIOS 
-## Curso 2025-26 
-## FastAPI Project
+## FastAPI Project – AWS Service Simulation (Grupo 2)
 
-# FastAPI Project – AWS Service Simulation
+Este proyecto es una API sencilla desarrollada con **FastAPI** por el **Grupo 2 (Hengan, Shenjian, Alex, Bernat)**.  
+La aplicación simula de forma básica algunos servicios de AWS (EC2, S3, RDS) mediante una API REST.
 
-This is a simple FastAPI-based project developed by **Grupo 2 (Hengan, Shenjian, Alex, Bernat)**.  
-It simulates basic AWS services using a RESTful API.  
-The project includes GET and POST endpoints that allow users to retrieve service information and calculate estimated costs.
+Incluye:
+
+- Un endpoint `GET` para consultar información general de los servicios.
+- Un endpoint `POST` para calcular un coste estimado a partir del uso de un servicio.
 
 ---
 
-## Project Structure
+## Estructura del proyecto
 
-```bash
-grupo2/
+```text
+aws.grupo2/
 │
 ├── app/
-│   ├── main.py               # Main entry point for the FastAPI application
-│   └── models.py             # Defines the data models using Pydantic
+│   ├── main.py        # Punto de entrada de la aplicación FastAPI
+│   └── models.py      # Modelos de datos definidos con Pydantic
 │
-├── requirements.txt          # Dependencies for the project
-└── README.md                 # Project documentation
+├── requirements.txt   # Dependencias del proyecto
+└── README.md          # Documentación del proyecto
 ```
 
 ---
 
-## Project Setup
+## Puesta en marcha
 
-### 1. **Clone the Project**
-
-First, clone the project repository to your local machine:
+### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/mcastrol/aossample.git
-cd aossample/grupo2
+git clone https://github.com/Shen1277/aws.grupo2.git
+cd aws.grupo2
 ```
 
 ---
 
-### 2. **Create and Activate a Python Virtual Environment**
+### 2. Crear y activar un entorno virtual
 
-Create a virtual environment to manage dependencies.
+**Linux / macOS:**
 
-**On Linux/macOS:**
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-**On Windows:**
+**Windows:**
+
 ```bash
 python -m venv venv
 venv\Scripts\activate
@@ -57,45 +57,42 @@ venv\Scripts\activate
 
 ---
 
-### 3. **Install Dependencies from `requirements.txt`**
+### 3. Instalar dependencias
 
-Once the virtual environment is activated, install the project dependencies:
+Con el entorno virtual activado:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-This will install all the necessary packages such as **FastAPI**, **Uvicorn**, and **Pydantic**.
+Esto instalará, entre otros, **FastAPI**, **Uvicorn** y **Pydantic**.
 
 ---
 
-### 4. **Run the FastAPI Application**
+### 4. Ejecutar la aplicación FastAPI
 
-To run the FastAPI application, use the following command:
+Lanza el servidor de desarrollo con:
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-The application will be available at:
+Por defecto, la aplicación estará disponible en:
 
-- **Local URL:** http://127.0.0.1:8000  
-- **Swagger UI:** http://127.0.0.1:8000/docs  
-- **ReDoc:** http://127.0.0.1:8000/redoc
+- API base: <http://127.0.0.1:8000>
+- Documentación interactiva (Swagger UI): <http://127.0.0.1:8000/docs>
+- Documentación alternativa (ReDoc): <http://127.0.0.1:8000/redoc>
 
 ---
 
-## API Endpoints
+## Endpoints de la API
 
-### **GET** `/info`
-- **Description**: Returns a list of AWS services and a short description.
+### GET `/info`
 
-**Example Request:**
-```bash
-GET /info
-```
+- **Descripción**: Devuelve una lista de servicios de AWS simulados y una descripción general.
 
-**Response:**
+**Ejemplo de respuesta:**
+
 ```json
 {
   "servicios": ["EC2", "S3", "RDS"],
@@ -106,10 +103,12 @@ GET /info
 
 ---
 
-### **POST** `/calcular`
-- **Description**: Accepts JSON data representing service usage and calculates the estimated cost.
+### POST `/calcular`
 
-**Request Body:**
+- **Descripción**: Recibe un JSON con la información de uso de un servicio y devuelve el coste estimado.
+
+**Cuerpo de la petición (request body):**
+
 ```json
 {
   "servicio": "EC2",
@@ -118,7 +117,8 @@ GET /info
 }
 ```
 
-**Response:**
+**Ejemplo de respuesta:**
+
 ```json
 {
   "servicio": "EC2",
@@ -130,19 +130,22 @@ GET /info
 
 ---
 
-## Example Usage (with `curl`)
+## Ejemplos con `curl`
 
-**1. Test the GET endpoint:**
+1. Probar el endpoint **GET** `/info`:
+
 ```bash
 curl http://127.0.0.1:8000/info
 ```
 
-**2. Test the POST endpoint:**
+2. Probar el endpoint **POST** `/calcular`:
+
 ```bash
-curl -X POST http://127.0.0.1:8000/calcular -H "Content-Type: application/json"   -d '{"servicio":"S3","horas":20,"precio_por_hora":0.15}'
+curl -X POST "http://127.0.0.1:8000/calcular"      -H "Content-Type: application/json"      -d '{"servicio":"S3","horas":20,"precio_por_hora":0.15}'
 ```
 
-**Response Example:**
+**Respuesta esperada:**
+
 ```json
 {
   "servicio": "S3",
@@ -154,19 +157,19 @@ curl -X POST http://127.0.0.1:8000/calcular -H "Content-Type: application/json" 
 
 ---
 
-## Notes
+## Notas
 
-- This is a **demo project** created for the course *Arquitectura Orientada a Servicios* (AOS).  
-- The API simulates basic AWS functionalities (EC2, S3, RDS).  
-- The data is stored **in memory only**, no database connection is required.  
-- The goal is to demonstrate **simple RESTful design and basic API logic** using **FastAPI**.
+- Este proyecto es un ejemplo para la asignatura **Arquitectura Orientada a Servicios (AOS)**.
+- Los datos se gestionan **en memoria**, no se utiliza base de datos.
+- El objetivo es practicar diseño REST básico y uso de **FastAPI** para exponer servicios tipo AWS.
 
 ---
 
-## Authors
+## Autores
 
-**Grupo 2:**  
+**Grupo 2**
+
 - Hengan  
 - Shenjian  
 - Alex  
-- Bernat
+- Bernat  
