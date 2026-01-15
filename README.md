@@ -1,175 +1,173 @@
-# ARQUITECTURA ORIENTADA A SERVICIOS  
-## Curso 2025-26  
+# AWS Service Simulation API – Grupo 2
 
-## FastAPI Project – AWS Service Simulation (Grupo 2)
+## Descripción del proyecto
 
-Este proyecto es una API sencilla desarrollada con **FastAPI** por el **Grupo 2 (Hengan, Shenjian, Alex, Bernat)**.  
-La aplicación simula de forma básica algunos servicios de AWS (EC2, S3, RDS) mediante una API REST.
+Este proyecto consiste en una **API REST desarrollada con FastAPI** cuyo objetivo es **simular el uso y el coste de servicios básicos de AWS**, concretamente **EC2, S3 y RDS**.
 
-Incluye:
+La aplicación permite:
+- Calcular el coste estimado del uso de servicios cloud.
+- Registrar y gestionar un historial de usos.
+- Obtener estadísticas agregadas por servicio y por proyecto.
+- Simular el coste mensual de una infraestructura en la nube.
 
-- Un endpoint `GET` para consultar información general de los servicios.
-- Un endpoint `POST` para calcular un coste estimado a partir del uso de un servicio.
+El proyecto se ha desarrollado como **ejercicio práctico de diseño de APIs**, aplicando principios de organización modular y separación de responsabilidades.
+
+---
+
+## Tecnologías utilizadas
+
+- **Python 3**
+- **FastAPI**
+- **Uvicorn**
+- **Pydantic**
+- **Swagger / OpenAPI** (documentación automática)
+
+Los datos se almacenan **en memoria**, sin base de datos, con el objetivo de simplificar el desarrollo y centrarse en la lógica de negocio de la API.
 
 ---
 
 ## Estructura del proyecto
 
 ```text
-aws.grupo2/
-│
-├── app/
-│   ├── main.py        # Punto de entrada de la aplicación FastAPI
-│   └── models.py      # Modelos de datos definidos con Pydantic
-│
-├── requirements.txt   # Dependencias del proyecto
-└── README.md          # Documentación del proyecto
+app/
+├── main.py          # Punto de entrada de la aplicación
+├── models.py        # Modelos Pydantic (validación y esquemas de datos)
+├── store.py         # Lógica de negocio y almacenamiento en memoria
+├── routers/
+│   ├── pricing.py   # Gestión de precios por servicio
+│   ├── usages.py    # CRUD de usos de servicios
+│   ├── stats.py     # Estadísticas agregadas
+│   └── simulate.py  # Simulación de costes mensuales
 ```
 
 ---
 
-## Puesta en marcha
+## Instalación y ejecución
 
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/Shen1277/aws.grupo2.git
+git clone <URL_DEL_REPOSITORIO>
 cd aws.grupo2
 ```
 
----
-
-### 2. Crear y activar un entorno virtual
-
-**Linux / macOS:**
-
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
-**Windows:**
-
-```bash
-python -m venv venv
-venv\Scripts\activate
-```
+*(Reemplazar `<URL_DEL_REPOSITORIO>` por la URL real del repositorio)*
 
 ---
 
-### 3. Instalar dependencias
-
-Con el entorno virtual activado:
+### 2. Instalar dependencias
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Esto instalará, entre otros, **FastAPI**, **Uvicorn** y **Pydantic**.
-
 ---
 
-### 4. Ejecutar la aplicación FastAPI
-
-Lanza el servidor de desarrollo con:
+### 3. Ejecutar la aplicación
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-Por defecto, la aplicación estará disponible en:
-
-- API base: <http://127.0.0.1:8000>
-- Documentación interactiva (Swagger UI): <http://127.0.0.1:8000/docs>
-- Documentación alternativa (ReDoc): <http://127.0.0.1:8000/redoc>
-
 ---
 
-## Endpoints de la API
+### Acceso a la aplicación
 
-### GET `/info`
+La API estará disponible en:
 
-- **Descripción**: Devuelve una lista de servicios de AWS simulados y una descripción general.
+```text
+http://127.0.0.1:8000
+```
 
-**Ejemplo de respuesta:**
+Documentación interactiva (Swagger):
 
-```json
-{
-  "servicios": ["EC2", "S3", "RDS"],
-  "descripcion": "Ejemplo de API para simular servicios de AWS",
-  "autor": "Grupo 2"
-}
+```text
+http://127.0.0.1:8000/docs
 ```
 
 ---
 
-### POST `/calcular`
+## Endpoints principales
 
-- **Descripción**: Recibe un JSON con la información de uso de un servicio y devuelve el coste estimado.
+### Información y estado
+- `GET /` – Endpoint raíz
+- `GET /health` – Comprobación de estado del servicio
+- `GET /info` – Información general de la API
 
-**Cuerpo de la petición (request body):**
+---
+
+### Gestión de precios
+- `GET /pricing` – Obtener precios actuales por servicio
+- `PUT /pricing/{servicio}` – Actualizar el precio de un servicio
+
+---
+
+### Cálculo de costes
+- `POST /calcular` – Calcular el coste estimado de un uso puntual
+
+---
+
+### Gestión de usos (CRUD)
+- `POST /usages` – Crear un nuevo registro de uso
+- `GET /usages` – Listar usos registrados (con filtros)
+- `GET /usages/{usage_id}` – Obtener un uso concreto
+- `PATCH /usages/{usage_id}` – Modificar parcialmente un uso
+- `DELETE /usages/{usage_id}` – Eliminar un uso
+- `DELETE /usages` – Eliminar todos los usos
+- `POST /usages/batch` – Registrar múltiples usos en una sola petición
+
+---
+
+### Estadísticas
+- `GET /stats/summary` – Resumen global de uso y coste
+- `GET /stats/by-service` – Estadísticas agrupadas por servicio
+- `GET /stats/by-project` – Estadísticas agrupadas por proyecto
+
+---
+
+### Simulación
+- `POST /simulate/monthly` – Simulación del coste mensual de una infraestructura
+
+---
+
+## Ejemplos de uso
+
+### Crear un uso de servicio
 
 ```json
+POST /usages
 {
   "servicio": "EC2",
   "horas": 10,
-  "precio_por_hora": 0.25
+  "proyecto": "demo"
 }
 ```
 
-**Ejemplo de respuesta:**
+---
+
+### Simulación mensual
 
 ```json
+POST /simulate/monthly
 {
-  "servicio": "EC2",
-  "horas": 10,
-  "precio_por_hora": 0.25,
-  "total_estimado": 2.5
+  "dias": 30,
+  "horas_diarias_ec2": 5,
+  "horas_diarias_s3": 2,
+  "horas_diarias_rds": 1
 }
 ```
 
 ---
 
-## Ejemplos con `curl`
+## Decisiones de diseño
 
-1. Probar el endpoint **GET** `/info`:
-
-```bash
-curl http://127.0.0.1:8000/info
-```
-
-2. Probar el endpoint **POST** `/calcular`:
-
-```bash
-curl -X POST "http://127.0.0.1:8000/calcular"      -H "Content-Type: application/json"      -d '{"servicio":"S3","horas":20,"precio_por_hora":0.15}'
-```
-
-**Respuesta esperada:**
-
-```json
-{
-  "servicio": "S3",
-  "horas": 20,
-  "precio_por_hora": 0.15,
-  "total_estimado": 3.0
-}
-```
+- Se utiliza **almacenamiento en memoria** para evitar dependencias externas y facilitar la ejecución del proyecto.
+- La lógica de negocio se concentra en la capa `store`, manteniendo los routers simples y enfocados en la gestión de peticiones HTTP.
+- Se incluyen endpoints de **estadísticas y simulación** para representar escenarios reales de planificación y control de costes en la nube.
+- La arquitectura modular permite ampliar fácilmente el sistema, por ejemplo añadiendo persistencia en base de datos o autenticación.
 
 ---
 
-## Notas
+## Observaciones finales
 
-- Este proyecto es un ejemplo para la asignatura **Arquitectura Orientada a Servicios (AOS)**.
-- Los datos se gestionan **en memoria**, no se utiliza base de datos.
-- El objetivo es practicar diseño REST básico y uso de **FastAPI** para exponer servicios tipo AWS.
-
----
-
-## Autores
-
-**Grupo 2**
-
-- Hengan  
-- Shenjian  
-- Alex  
-- Bernat  
+Este proyecto se ha desarrollado con fines académicos como práctica de diseño de APIs REST, validación de datos, documentación automática y organización modular del código.
