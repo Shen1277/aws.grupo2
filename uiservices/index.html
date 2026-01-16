@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Cost Simulator</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">☁️</span>
+                <h1>AWS Cost Simulator</h1>
+            </div>
+            <nav class="nav">
+                <button class="nav-btn active" data-section="dashboard">Dashboard</button>
+                <button class="nav-btn" data-section="usages">Usos</button>
+                <button class="nav-btn" data-section="pricing">Preus</button>
+                <button class="nav-btn" data-section="simulator">Simulador</button>
+                <button class="nav-btn" data-section="stats">Estadístiques</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <h2 class="section-title">Dashboard</h2>
+            <div class="dashboard-cards">
+                <div class="card card-primary">
+                    <div class="card-icon">📊</div>
+                    <div class="card-content">
+                        <h3>Total Usos</h3>
+                        <p class="card-value" id="total-usos">-</p>
+                    </div>
+                </div>
+                <div class="card card-success">
+                    <div class="card-icon">💰</div>
+                    <div class="card-content">
+                        <h3>Cost Total</h3>
+                        <p class="card-value" id="cost-total">-</p>
+                    </div>
+                </div>
+                <div class="card card-info">
+                    <div class="card-icon">⏱️</div>
+                    <div class="card-content">
+                        <h3>Hores Totals</h3>
+                        <p class="card-value" id="hores-totals">-</p>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary refresh-btn" onclick="loadDashboard()">
+                🔄 Actualitzar
+            </button>
+        </section>
+
+        <!-- Usages Section -->
+        <section id="usages" class="section">
+            <h2 class="section-title">Gestió d'Usos</h2>
+
+            <!-- Form -->
+            <div class="form-container">
+                <h3 id="form-title">Nou Ús</h3>
+                <form id="usage-form">
+                    <input type="hidden" id="usage-id">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="servicio">Servei</label>
+                            <select id="servicio" required>
+                                <option value="">Selecciona...</option>
+                                <option value="EC2">EC2</option>
+                                <option value="S3">S3</option>
+                                <option value="RDS">RDS</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="horas">Hores</label>
+                            <input type="number" id="horas" min="0" step="0.5" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="proyecto">Projecte</label>
+                            <input type="text" id="proyecto" required placeholder="Nom del projecte">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="submit-btn">Crear</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()">Cancel·lar</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Table -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>Llistat d'Usos</h3>
+                    <button class="btn btn-danger btn-sm" onclick="deleteAllUsages()">
+                        🗑️ Eliminar tots
+                    </button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Servei</th>
+                            <th>Hores</th>
+                            <th>Projecte</th>
+                            <th>Cost</th>
+                            <th>Accions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usages-table-body">
+                        <tr>
+                            <td colspan="6" class="loading">Carregant...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section id="pricing" class="section">
+            <h2 class="section-title">Gestió de Preus</h2>
+            <div class="pricing-cards" id="pricing-cards">
+                <div class="pricing-card">
+                    <div class="pricing-icon ec2">EC2</div>
+                    <div class="pricing-content">
+                        <h3>Amazon EC2</h3>
+                        <p class="pricing-desc">Elastic Compute Cloud</p>
+                        <div class="pricing-input-group">
+                            <span class="currency">$</span>
+                            <input type="number" id="price-EC2" min="0" step="0.001" class="pricing-input">
+                            <span class="unit">/hora</span>
+                        </div>
+                        <button class="btn btn-primary btn-sm" onclick="updatePrice('EC2')">Actualitzar</button>
+                    </div>
+                </div>
+                <div class="pricing-card">
+                    <div class="pricing-icon s3">S3</div>
+                    <div class="pricing-content">
+                        <h3>Amazon S3</h3>
+                        <p class="pricing-desc">Simple Storage Service</p>
+                        <div class="pricing-input-group">
+                            <span class="currency">$</span>
+                            <input type="number" id="price-S3" min="0" step="0.001" class="pricing-input">
+                            <span class="unit">/hora</span>
+                        </div>
+                        <button class="btn btn-primary btn-sm" onclick="updatePrice('S3')">Actualitzar</button>
+                    </div>
+                </div>
+                <div class="pricing-card">
+                    <div class="pricing-icon rds">RDS</div>
+                    <div class="pricing-content">
+                        <h3>Amazon RDS</h3>
+                        <p class="pricing-desc">Relational Database Service</p>
+                        <div class="pricing-input-group">
+                            <span class="currency">$</span>
+                            <input type="number" id="price-RDS" min="0" step="0.001" class="pricing-input">
+                            <span class="unit">/hora</span>
+                        </div>
+                        <button class="btn btn-primary btn-sm" onclick="updatePrice('RDS')">Actualitzar</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Simulator Section -->
+        <section id="simulator" class="section">
+            <h2 class="section-title">Simulador de Cost Mensual</h2>
+            <div class="simulator-container">
+                <form id="simulator-form" class="simulator-form">
+                    <div class="form-group">
+                        <label for="sim-dias">Dies al mes</label>
+                        <input type="number" id="sim-dias" min="1" max="31" value="30" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sim-ec2">Hores diàries EC2</label>
+                        <input type="number" id="sim-ec2" min="0" max="24" step="0.5" value="8" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sim-s3">Hores diàries S3</label>
+                        <input type="number" id="sim-s3" min="0" max="24" step="0.5" value="24" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sim-rds">Hores diàries RDS</label>
+                        <input type="number" id="sim-rds" min="0" max="24" step="0.5" value="8" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg">Calcular Cost</button>
+                </form>
+
+                <div id="simulator-result" class="simulator-result hidden">
+                    <h3>Resultat de la Simulació</h3>
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <span class="result-label">Cost EC2</span>
+                            <span class="result-value" id="result-ec2">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Cost S3</span>
+                            <span class="result-value" id="result-s3">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Cost RDS</span>
+                            <span class="result-value" id="result-rds">-</span>
+                        </div>
+                        <div class="result-item total">
+                            <span class="result-label">COST TOTAL MENSUAL</span>
+                            <span class="result-value" id="result-total">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section id="stats" class="section">
+            <h2 class="section-title">Estadístiques</h2>
+            <div class="stats-container">
+                <div class="chart-container">
+                    <h3>Estadístiques per Servei</h3>
+                    <div class="chart" id="chart-service">
+                        <p class="loading">Carregant...</p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <h3>Estadístiques per Projecte</h3>
+                    <div class="chart" id="chart-project">
+                        <p class="loading">Carregant...</p>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary refresh-btn" onclick="loadStats()">
+                🔄 Actualitzar Estadístiques
+            </button>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>AWS Cost Simulator &copy; 2024 - Frontend per API de simulació</p>
+    </footer>
+
+    <!-- Confirm Modal -->
+    <div id="confirm-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="modal-title">Confirmar</h3>
+            <p id="modal-message">Estàs segur?</p>
+            <div class="modal-actions">
+                <button class="btn btn-danger" id="modal-confirm">Confirmar</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel·lar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
